@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Tank.h"
 #include "TankAIController.generated.h"
+
+// Forward Declaration
+class ATank;
 
 /**
  * 
@@ -18,8 +20,4 @@ class BATTLETANK_API ATankAIController : public AAIController
 public:
     void BeginPlay() override;
     void Tick(float DeltaTime);
-	
-    ATank* GetControlledTank() const;
-    ATank* GetPlayerTank() const;
-    
 };

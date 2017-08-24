@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
+#include "Tank.h"
 
 void ATankPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     
     ATank* Tank = GetControlledTank();
-    if (Tank != nullptr) {
-        UE_LOG(LogTemp, Warning, TEXT("PlayerController Prossessed Tank: %s"), *Tank->GetName());
-    } else {
+    if (Tank == nullptr)
+    {
         UE_LOG(LogTemp, Error, TEXT("No Prossessed Tank"));
     }
 }

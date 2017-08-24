@@ -4,8 +4,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "TankBarrel.h"
-
-
+#include "TankTurret.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -20,6 +19,11 @@ UTankAimingComponent::UTankAimingComponent()
 void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
     Barrel = BarrelToSet;
+}
+
+void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
+{
+    Turret = TurretToSet;
 }
 
 // Called when the game starts
@@ -45,45 +49,34 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
     auto OurTankName = GetOwner()->GetName();
     auto BarrelLocation = Barrel->GetComponentLocation();
     
-//    UE_LOG(LogTemp, Warning, TEXT("%s aiming at %s from %s"), *OurTankName, *HitLocation.ToString(), *BarrelLocation.ToString());
-
-    
-    
     FVector OutLaunchVelocity;
     FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
-    FCollisionResponseParams CollisionResponseParams;
-    TArray<AActor*> ActorsToIgnore = TArray<AActor*>();
-    
+    bool bAimResult = UGameplayStatics::SuggestProjectileVelocity(this,
+                                                                  OutLaunchVelocity,
+                                                                  StartLocation,
+                                                                  HitLocation,
+                                                                  LaunchSpeed,
+                                                                  false,
+                                                                  0.f, // CollisionRadius
+                                                                  0.f, // OverrideGravityZ
+                                                                  ESuggestProjVelocityTraceOption::DoNotTrace  // This parametre must be set, cannot use TraceFullPath
+                                                                  );
     // Calculate the OutLaunchVelocity
-    if (UGameplayStatics::SuggestProjectileVelocity(this,
-                                                    OutLaunchVelocity,
-                                                    StartLocation,
-                                                    HitLocation,
-                                                    LaunchSpeed,
-                                                    false,
-                                                    1.f, // CollisionRadius
-                                                    0.f, // OverrideGravityZ
-                                                    ESuggestProjVelocityTraceOption::DoNotTrace,
-                                                    CollisionResponseParams,
-                                                    ActorsToIgnore,
-                                                    false
-        ))
+    if (bAimResult)
     {
         auto AimDirection = OutLaunchVelocity.GetSafeNormal();
         MoveBarrelTowards(AimDirection);
-
-        
     }
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
+    
     // Work-out difference between current barrel rotation, and AimDirection
-    auto BarrelRotation = Barrel->GetForwardVector().Rotation();
+    auto BarrelRotator = Barrel->GetForwardVector().Rotation();
     auto AimAsRotator = AimDirection.Rotation();
-    auto DeltaRotator = AimAsRotator - BarrelRotation;
-    UE_LOG(LogTemp, Warning, TEXT("AimsRotator: %s"), *AimAsRotator.ToString());
+    auto DeltaRotator = AimAsRotator - BarrelRotator;
     
-    
-    Barrel->Elevate(5.f);
+    Barrel->Elevate(DeltaRotator.Pitch);
+    Turret->Rotate(DeltaRotator.Yaw);
 }

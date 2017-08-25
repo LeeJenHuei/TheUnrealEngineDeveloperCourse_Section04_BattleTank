@@ -23,6 +23,6 @@ public:
     
 private:
     // How close can a tank gets to player
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float AcceptanceRadius = 3000;
 };

@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Projectile.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -35,6 +36,12 @@ void UTankAimingComponent::BeginPlay()
 	
 }
 
+void UTankAimingComponent::Initialize(UTankTurret* TurretToSet, UTankBarrel* BarrelToSet)
+{
+    Turret = TurretToSet;
+    Barrel = BarrelToSet;
+}
+
 
 // Called every frame
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,7 +51,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
+void UTankAimingComponent::AimAt(FVector HitLocation)//, float LaunchSpeed)
 {
     auto OurTankName = GetOwner()->GetName();
     auto BarrelLocation = Barrel->GetComponentLocation();
@@ -66,6 +73,21 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
     {
         auto AimDirection = OutLaunchVelocity.GetSafeNormal();
         MoveBarrelTowards(AimDirection);
+    }
+}
+
+void UTankAimingComponent::Fire()
+{
+    bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+    if (Barrel && isReloaded)
+    {
+        
+        // Spawn a projectile at the socket location on the barrel
+        auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileBlueprint,
+                                                              Barrel->GetSocketLocation(FName("Projectile")),
+                                                              Barrel->GetSocketRotation(FName("Projectile")));
+        Projectile->LaunchProjectile(LaunchSpeed);
+        LastFireTime = FPlatformTime::Seconds();
     }
 }
 

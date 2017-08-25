@@ -6,11 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "Tank.generated.h"
 
+
 // Forward Declaration
-class UTankBarrel;
-class UTankTurret;
 class UTankAimingComponent;
-class AProjectile;
 class UTankMovementComponent;
 
 UCLASS()
@@ -26,37 +24,31 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
     
-    UTankAimingComponent* TankAimingComponent;
+    UTankAimingComponent* TankAimingComponent = nullptr;
     
     
 public:	
+    UFUNCTION(BlueprintCallable, Category = "Setup")
+    void SetAimingComponent(UTankAimingComponent* ComponentToSet);
+    
     void AimAt(FVector HitLocation);
     
-    UFUNCTION(BlueprintCallable, Category = Setup)
-    void SetBarrelReference(UTankBarrel* BarrelToSet);
-
-    UFUNCTION(BlueprintCallable, Category = Setup)
-    void SetTurretReference(UTankTurret* TurretToSet);
-
-    UFUNCTION(BlueprintCallable, Category = Control)
+    UFUNCTION(BlueprintCallable, Category = "Control")
     void Fire();
     
-    UPROPERTY(EditDefaultsOnly, Category = Firing)
-    float LaunchSpeed = 4000;  /// Sensible starting value of 1000m/s
+//    UFUNCTION(BlueprintCallable, Category = Setup)
+//    void SetBarrelReference(UTankBarrel* BarrelToSet);
+
+//    UFUNCTION(BlueprintCallable, Category = Setup)
+//    void SetTurretReference(UTankTurret* TurretToSet);
+
     
-    UPROPERTY(EditDefaultsOnly, Category = Setup)
-    TSubclassOf<AProjectile> ProjectileBlueprint;
-    
-    UPROPERTY(EditDefaultsOnly, Category = Firing)
-    float ReloadTimeInSeconds = 3;
     
     
 private:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-    UTankBarrel* Barrel = nullptr;
-    
-    double LastFireTime = 0;
-    
+
+
 };

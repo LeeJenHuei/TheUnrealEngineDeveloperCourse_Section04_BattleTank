@@ -2,15 +2,21 @@
 
 #include "TankPlayerController.h"
 #include "Tank.h"
+#include "TankAimingComponent.h"
+
 
 void ATankPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     
-    ATank* Tank = GetControlledTank();
-    if (Tank == nullptr)
+    auto AutoComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
+    if (AutoComponent)
     {
-        UE_LOG(LogTemp, Error, TEXT("No Prossessed Tank"));
+        FoundAimingComponent(AutoComponent);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("No TankAimingComponent"))
     }
 }
 
@@ -26,6 +32,12 @@ ATank* ATankPlayerController::GetControlledTank() const
     return Cast<ATank>(GetPawn());
 }
 
+/*
+void ATankPlayerController::FoundAimingComponent(UTankAimingComponent* AimingComponentRef)
+{
+
+}
+*/
 void ATankPlayerController::AimTowardsCrosshair()
 {
     if (!GetControlledTank())

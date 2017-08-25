@@ -8,9 +8,10 @@
 
 // Forward Declaration
 class ATank;
+class UTankAimingComponent;
 
 /**
- * 
+ * Responsible for helping player aims
  */
 UCLASS()
 class BATTLETANK_API ATankPlayerController : public APlayerController
@@ -23,11 +24,17 @@ public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
     
-
-    
-private:
+protected:
+    UFUNCTION(BlueprintCallable, Category = "Setup")
     ATank* GetControlledTank() const;
 
+    
+    UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
+    void FoundAimingComponent(UTankAimingComponent* AimingComponentRef);
+    
+    
+    
+private:
     // Start the tank moving the barrel so that a shot would hit where the crosshair
     // intersetcs the world
     void AimTowardsCrosshair();
@@ -39,12 +46,12 @@ private:
 
     bool GetLookVectorHitLocation(FVector LookDirection, FVector &outHitLocation) const;
     
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float CrossHairXLocation = 0.5f;
     
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float CrossHairYLocation = 0.3333333f;
     
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float LineTraceRange = 1000000.0f;  // in Centimeters
 };

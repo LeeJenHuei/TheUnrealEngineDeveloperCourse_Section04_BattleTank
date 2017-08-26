@@ -32,14 +32,10 @@ ATank* ATankPlayerController::GetControlledTank() const
     return Cast<ATank>(GetPawn());
 }
 
-/*
-void ATankPlayerController::FoundAimingComponent(UTankAimingComponent* AimingComponentRef)
-{
-
-}
-*/
 void ATankPlayerController::AimTowardsCrosshair()
 {
+    if (!ensure(GetControlledTank())) { return; }
+        
     if (!GetControlledTank())
     {
         return;

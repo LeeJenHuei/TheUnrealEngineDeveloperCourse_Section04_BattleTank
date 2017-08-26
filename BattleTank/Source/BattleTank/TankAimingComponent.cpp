@@ -53,6 +53,8 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UTankAimingComponent::AimAt(FVector HitLocation)//, float LaunchSpeed)
 {
+    if (!ensure(Barrel && Turret)) return;
+
     auto OurTankName = GetOwner()->GetName();
     auto BarrelLocation = Barrel->GetComponentLocation();
     
@@ -78,6 +80,8 @@ void UTankAimingComponent::AimAt(FVector HitLocation)//, float LaunchSpeed)
 
 void UTankAimingComponent::Fire()
 {
+    if (!ensure(Barrel && Turret)) return;
+
     bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
     if (Barrel && isReloaded)
     {
@@ -93,6 +97,7 @@ void UTankAimingComponent::Fire()
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
+    if (!ensure(Barrel && Turret)) return;
     
     // Work-out difference between current barrel rotation, and AimDirection
     auto BarrelRotator = Barrel->GetForwardVector().Rotation();

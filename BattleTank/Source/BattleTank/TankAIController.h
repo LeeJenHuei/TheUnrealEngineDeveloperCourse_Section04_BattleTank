@@ -6,9 +6,6 @@
 #include "AIController.h"
 #include "TankAIController.generated.h"
 
-// Forward Declaration
-class ATank;
-
 /**
  * 
  */
@@ -17,12 +14,12 @@ class BATTLETANK_API ATankAIController : public AAIController
 {
 	GENERATED_BODY()
 	
-public:
+private:
     void BeginPlay() override;
     void Tick(float DeltaTime);
     
-private:
+protected:
     // How close can a tank gets to player
     UPROPERTY(EditDefaultsOnly, Category = "Setup")
-    float AcceptanceRadius = 3000;
+    float AcceptanceRadius = 8000;
 };

@@ -1,15 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
-#include "Tank.h"
 #include "TankAimingComponent.h"
-
 
 void ATankPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     
-    auto AutoComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
+    auto AutoComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
     if (AutoComponent)
     {
         FoundAimingComponent(AutoComponent);
@@ -27,27 +25,20 @@ void ATankPlayerController::Tick(float DeltaTime)
     AimTowardsCrosshair();
 }
 
-ATank* ATankPlayerController::GetControlledTank() const
-{
-    return Cast<ATank>(GetPawn());
-}
-
 void ATankPlayerController::AimTowardsCrosshair()
 {
-    if (!ensure(GetControlledTank())) { return; }
-        
-    if (!GetControlledTank())
+    if (GetPawn())  // if not posessing
     {
-        return;
+        UTankAimingComponent *AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+        if (!ensure(AimingComponent)) { return; }
+    
+        FVector HitLocation; // Out parameter
+    
+        if (GetSightRayHitLocation(HitLocation))
+        {
+            AimingComponent->AimAt(HitLocation);
+        }
     }
-    
-    FVector HitLocation; // Out parameter
-    
-    if (GetSightRayHitLocation(HitLocation))
-    {
-        GetControlledTank()->AimAt(HitLocation);
-    }
-    
 }
 
 // Get world location if linetrace through crosshair, true if hits landscape
@@ -63,9 +54,9 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& outHitLocation) cons
     if (GetLookDirection(ScreenLocation, LookDirection))
     {
         // Line-trace along that look direction, and see what we hit (up to a max range)
-        GetLookVectorHitLocation(LookDirection, outHitLocation);
+        return GetLookVectorHitLocation(LookDirection, outHitLocation);
     }
-    return true;
+    return false;
 
 }
 

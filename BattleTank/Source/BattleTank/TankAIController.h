@@ -18,8 +18,14 @@ private:
     void BeginPlay() override;
     void Tick(float DeltaTime);
     
+    virtual void SetPawn(APawn* InPawn) override;
+    
 protected:
     // How close can a tank gets to player
     UPROPERTY(EditDefaultsOnly, Category = "Setup")
     float AcceptanceRadius = 8000;
+    
+public:
+    UFUNCTION()
+    void TankDeath();
 };

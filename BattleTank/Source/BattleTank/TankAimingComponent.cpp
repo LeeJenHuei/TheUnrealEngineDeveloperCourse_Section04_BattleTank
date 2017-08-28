@@ -126,7 +126,6 @@ void UTankAimingComponent::Fire()
         Projectile->LaunchProjectile(LaunchSpeed);
         LastFireTime = FPlatformTime::Seconds();
         RoundsLeft--;
-        FiringState = EFiringState::Reloading;
     }
 }
 

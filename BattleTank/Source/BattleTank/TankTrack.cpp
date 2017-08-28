@@ -49,6 +49,7 @@ void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UP
     ApplySidewaysForce();
     
     // Reset Throttle
+    CurrentThrottle = 0;
 }
 
 void UTankTrack::ApplySidewaysForce()

@@ -3,6 +3,8 @@
 #include "Projectile.h"
 #include "Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/RadialForceComponent.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -24,6 +26,10 @@ AProjectile::AProjectile()
     ImpactBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Impact Blast"));
     ImpactBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     ImpactBlast->bAutoActivate = false;
+    
+    ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("Explosion Force"));
+    ExplosionForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    
 }
 
 // Called when the game starts or when spawned
@@ -36,14 +42,35 @@ void AProjectile::BeginPlay()
 
 void AProjectile::LaunchProjectile(float Speed)
 {
-    if (!ensure(ProjectileMovement)) return;
-
     ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * Speed);
     ProjectileMovement->Activate();
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+    UE_LOG(LogTemp, Warning, TEXT("%s: Hit with %s"), *HitComponent->GetOwner()->GetName(), *OtherActor->GetName());
     LaunchBlast->Deactivate();
     ImpactBlast->Activate();
+    ExplosionForce->FireImpulse();
+    
+    SetRootComponent(ImpactBlast);
+    CollisionMesh->DestroyComponent();
+    
+    UGameplayStatics::ApplyRadialDamage(
+                                        this,
+                                        ProjectileDamage,
+                                        GetActorLocation(),
+                                        ExplosionForce->Radius, // for consistency
+                                        UDamageType::StaticClass(),
+                                        TArray<AActor*>() // Empty array = damage all actors
+                                        );
+    
+    FTimerHandle Timer;
+    GetWorld()->GetTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, DestroyDelay, false);
+}
+
+
+void AProjectile::OnTimerExpire()
+{
+    Destroy();
 }

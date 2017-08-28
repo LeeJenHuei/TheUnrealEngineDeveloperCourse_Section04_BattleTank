@@ -2,6 +2,7 @@
 
 #include "TankPlayerController.h"
 #include "TankAimingComponent.h"
+#include "Tank.h"
 
 void ATankPlayerController::BeginPlay()
 {
@@ -74,10 +75,33 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
     auto StartLocation = PlayerCameraManager->GetCameraLocation();
     auto EndLocation = StartLocation + LookDirection * LineTraceRange;
     
-    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility))
+    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Camera))
     {
         outHitLocation = HitResult.Location;
         return true;
     }
     return false;
+}
+
+void ATankPlayerController::TankDeath()
+{
+    if (!GetPawn()) { return; }
+    
+    StartSpectatingOnly();
+}
+
+void ATankPlayerController::SetPawn(APawn* InPawn)
+{
+    Super::SetPawn(InPawn);
+    
+    if (InPawn)
+    {
+        auto PossessedTank = Cast<ATank>(InPawn);
+        if (!ensure(PossessedTank)) { return; }
+        
+        // Subscribe our local method to the tank's death event
+        // *** Subscribe here instead of "BeginPlay()" is because to make sure there is a possessedTank ready to subscribe to the Death event
+        PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::TankDeath);
+        
+    }
 }

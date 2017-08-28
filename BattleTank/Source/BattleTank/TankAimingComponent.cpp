@@ -71,7 +71,7 @@ EFiringState UTankAimingComponent::GetFiringState() const
     return FiringState;
 }
 
-int UTankAimingComponent::GetRoundsLeft() const
+int32 UTankAimingComponent::GetRoundsLeft() const
 {
     return RoundsLeft;
 }
@@ -109,7 +109,7 @@ bool UTankAimingComponent::IsBarrelMoving()
     
     auto BarrelForward = Barrel->GetForwardVector();
     
-    return !BarrelForward.Equals(AimDirection, 0.01f);
+    return !BarrelForward.Equals(AimDirection, 0.1f);
 }
 
 void UTankAimingComponent::Fire()
